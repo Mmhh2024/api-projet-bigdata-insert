@@ -1,10 +1,6 @@
 package fr.formation.api_insert_data.dto;
 
-//public class SolarWindDto {
-
-//}
-
-public class KirunaWindDto {
+public class KirunaDto {
     private String date;
     private Float X;
 
