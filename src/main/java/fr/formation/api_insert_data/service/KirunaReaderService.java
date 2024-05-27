@@ -1,8 +1,4 @@
-package fr.formation.api_insert_data.Service;
-
-//public class SolarReaderService {
-
-//}
+package fr.formation.api_insert_data.service;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -13,14 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import fr.formation.api_insert_data.dto.KirunaWindDto;
+import fr.formation.api_insert_data.dto.KirunaDto;
 
 @Service
 public class KirunaReaderService {
     private static final Logger log = LoggerFactory.getLogger(KirunaReaderService.class);
 
-    public List<KirunaWindDto> read(String filename) {
-        List<KirunaWindDto> winds = new ArrayList<>();
+    public List<KirunaDto> read(String filename) {
+        List<KirunaDto> kirunaData = new ArrayList<>();
 
         log.debug("Ouverture du fichier Kiruna {} ...", filename);
 
@@ -29,13 +25,8 @@ public class KirunaReaderService {
             int index = 0;
 
             while ((line = br.readLine()) != null) {
-                // En-tête : Date;Speed;Density;Bt;Bz
-                if (index++ < 1) { // On est dans l'en-tête, donc on ignore
-                    continue; // Boucler directement
-                }
-
-                String[] infos = line.split(";");
-                KirunaWindDto dto = new KirunaWindDto();
+                String[] infos = line.split("\t");
+                KirunaDto dto = new KirunaDto();
 
                 dto.setDate(infos[0]);
 
@@ -43,18 +34,17 @@ public class KirunaReaderService {
                     dto.setX(Float.parseFloat(infos[1]));
                 }
                 
-                
-
-                winds.add(dto);
+                kirunaData.add(dto);
             }
 
-            log.debug("{} kiruna  winds processed!", index);
+            log.debug("{} kiruna data processed!", index);
         }
 
         catch (Exception ex) {
             log.error("Erreur pendant la lecture du fichier {}...", filename);
+            ex.printStackTrace();
         }
 
-        return winds;
+        return kirunaData;
     }
 }

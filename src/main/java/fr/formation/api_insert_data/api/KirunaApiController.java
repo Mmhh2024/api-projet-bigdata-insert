@@ -1,8 +1,4 @@
-package fr.formation.api_insert_data.Api;
-
-//public class SolarApiController {
-
-//}
+package fr.formation.api_insert_data.api;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,8 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.formation.api_insert_data.Service.KirunaReaderService;
-import fr.formation.api_insert_data.dto.KirunaWindDto;
+import fr.formation.api_insert_data.dto.KirunaDto;
+import fr.formation.api_insert_data.service.KirunaReaderService;
 
 @RestController
 @RequestMapping("/api/kiruna")
@@ -29,13 +25,11 @@ public class KirunaApiController {
 
     @PostMapping
     public void readAndSave() {
-        try (Connection connection = DriverManager.getConnection("jdbc:clickhouse://127.0.0.1:8123/satellite", "default", "")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:clickhouse://127.0.0.1:8123/projet_solar",
+                "default", "")) {
             connection.setAutoCommit(false);
 
-            //for (int i = 1; i <= 12; i++) {
-                //this.readAndSave(connection, i)
-                this.readAndSave(connection);;
-            //}
+            this.readAndSave(connection);
         }
 
         catch (Exception ex) {
@@ -44,18 +38,16 @@ public class KirunaApiController {
         }
     }
 
-    //private void readAndSave(Connection connection, int mois) {
-        private void readAndSave(Connection connection) {
-        List<KirunaWindDto> winds = this.readerService.read("C:\\csharp\\API-BIGDATA\\api-insert-data\\kiruna_traite_gp2\\part-00000"); 
-        //+ String.format("%02d", mois) + ".csv");
+    private void readAndSave(Connection connection) {
+        List<KirunaDto> kirunaData = this.readerService
+                .read("/home/pauline/eclipse-workspace/api-projet-bigdata-insert/kiruna_traite_gp2/part-00000");
 
-        // Récupérer un Statement pour exécuter la requête (un PreparedStatement est encore mieux !)
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO wind (date, X) VALUES (?, ?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO kiruna (date, X) VALUES (?, ?)")) {
             int batchIndex = 0;
-            
-            for (KirunaWindDto wind : winds) {
-                statement.setString(1, wind.getDate());
-                statement.setFloat(5, wind.getX() == null ? 0 : wind.getX());
+
+            for (KirunaDto data : kirunaData) {
+                statement.setString(1, data.getDate());
+                statement.setFloat(2, data.getX() == null ? 0 : data.getX());
 
                 statement.addBatch();
 
